@@ -102,7 +102,7 @@ def train(model, iterator, optimizer, criterion, clip):
         min_vecs = torch.min(coverage_vecs, attn_vecs)
         coverage_loss = torch.sum(min_vecs).item()
             
-        loss += coverage_loss
+        loss += 0.001*coverage_loss
         
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
