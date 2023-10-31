@@ -89,6 +89,9 @@ def train(model, iterator, optimizer, criterion, clip):
         attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
         target_len = attn_dist.shape[1]
         src_len = attn_dist.shape[2]
+        
+        attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
+
 
         attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
         coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
@@ -141,6 +144,8 @@ def evaluate(model, iterator, criterion):
             attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
             target_len = attn_dist.shape[1]
             src_len = attn_dist.shape[2]
+
+            attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
 
             attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
             coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len, :], 1)
