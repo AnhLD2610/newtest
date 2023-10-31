@@ -133,7 +133,7 @@ def evaluate(model, iterator, criterion):
             # print(trg)
             optimizer.zero_grad()
             # xem format cua trg 
-            output = model(src, trg)
+            output, attn_dist = model(src, trg)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
             trg_new = trg.contiguous().view(-1)
             # print(trg.shape)
@@ -144,11 +144,12 @@ def evaluate(model, iterator, criterion):
             attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
             target_len = attn_dist.shape[1]
             src_len = attn_dist.shape[2]
-
+            
             attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
 
+
             attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
-            coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len, :], 1)
+            coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
             # attn_vecs = attn_dist_reshaped[:, 1:, :]
             # de 3 token dac biet o dau
             attn_vecs = attn_dist_reshaped[:, :, :]
