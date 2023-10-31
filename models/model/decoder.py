@@ -29,11 +29,11 @@ class Decoder(nn.Module):
         trg = self.emb(trg)
 
         for layer in self.layers:
-            trg = layer(trg, enc_src, trg_mask, src_mask)
+            trg, attention = layer(trg, enc_src, trg_mask, src_mask)
         # trn shape [batch_size, seq_len, d_model]
         
         # pass to LM head
         output = self.linear(trg)
         # trn shape [batch_size, seq_len, dec_voc_size]
 
-        return output
+        return output, attention
