@@ -27,7 +27,7 @@ weight_decay = 5e-4
 inf = float('inf')
 
 # train, val, path 
-train_path ="/kaggle/input/c-dataset/train.csv"
-val_path ="/kaggle/input/c-dataset/valid.csv"
-test_path = "/kaggle/input/c-dataset/test.csv"
+train_path ="/kaggle/input/c#_dataset/train.csv"
+val_path ="/kaggle/input/c#_dataset/valid.csv"
+test_path = "/kaggle/input/c#_dataset/test.csv"
 
