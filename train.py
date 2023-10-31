@@ -91,10 +91,10 @@ def train(model, iterator, optimizer, criterion, clip):
         src_len = attn_dist.shape[2]
 
         attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
-        coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len - 1, :], 1)
+        coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
         # attn_vecs = attn_dist_reshaped[:, 1:, :]
         # de 3 token dac biet o dau
-        attn_vecs = attn_dist_reshaped[:, 3:, :]
+        attn_vecs = attn_dist_reshaped[:, :, :]
 
         min_vecs = torch.min(coverage_vecs, attn_vecs)
         coverage_loss = torch.sum(min_vecs).item()
