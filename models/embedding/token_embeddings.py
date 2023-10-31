@@ -1,7 +1,5 @@
 import torch 
-import sys
-sys.path.append('/home/aiotlab3/RISE/Lab-MA/DucAnh/transformer')
-from conf import *
+
 
 
 
@@ -40,12 +38,13 @@ from conf import *
 #     #     super(TokenEmbedding, self).__init__(vocab_size, d_model, padding_idx=1)
         
 class TokenEmbedding():
-    def __init__(self, model, config):
+    def __init__(self, model, config, device):
         self.model = model
         self.config = config
+        self.device = device
     # co the phai to device
     def embedding(self, x):
-        source_ids = x.to(device)
+        source_ids = x.to(self.device)
 
         # tokens_embeddings,max_func_embedding = model(source_ids)
 

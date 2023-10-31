@@ -21,7 +21,7 @@ class TransformerEmbedding(nn.Module):
         # d_model = 768 
         super(TransformerEmbedding, self).__init__()
         # tok_emb shape [batch_size, seq_len, d_model]
-        self.tok_emb = TokenEmbedding(model,config)
+        self.tok_emb = TokenEmbedding(model,config, device)
         # pos_emb shape [seq_len, d_model]
         self.pos_emb = PositionalEncoding(d_model, max_len, device)
         self.drop_out = nn.Dropout(p=drop_prob)
