@@ -24,16 +24,20 @@ class Decoder(nn.Module):
 
         self.linear = nn.Linear(d_model, dec_voc_size)
 
-    def forward(self, trg, enc_src, trg_mask, src_mask):
-        # fix this
+    def forward(self, trg, enc_src, trg_mask, src_mask, return_attns=False):
+        dec_slf_attn_list, dec_enc_attn_list = [], []
+
         trg = self.emb(trg)
 
         for layer in self.layers:
-            trg, attention = layer(trg, enc_src, trg_mask, src_mask)
+            trg, dec_slf_attn, dec_enc_attn = layer(trg, enc_src, trg_mask, src_mask)
         # trn shape [batch_size, seq_len, d_model]
-        
+            if return_attns:
+                dec_slf_attn_list += [dec_slf_attn]
+                dec_enc_attn_list += [dec_enc_attn]
         # pass to LM head
         output = self.linear(trg)
         # trn shape [batch_size, seq_len, dec_voc_size]
-
-        return output, attention
+        if return_attns:
+            return output, dec_slf_attn_list, dec_enc_attn_list
+        else: return output,

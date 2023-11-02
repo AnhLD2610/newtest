@@ -22,11 +22,19 @@ class Encoder(nn.Module):
                                                   drop_prob=drop_prob)
                                      for _ in range(n_layers)])
 
-    def forward(self, x, src_mask):
+    def forward(self, x, src_mask, return_attns=False):
+        enc_slf_attn_list = []
+
         x = self.emb(x)
         # x shape [batch_size, seq_len, d_model]
         for layer in self.layers:
             x, attention = layer(x, src_mask)
+            if return_attns:
+                enc_slf_attn_list += [attention]
             # x shape [batch_size, seq_len, d_model]
         # return  [batch_size, seq_len, d_model]
-        return x, attention 
+        if return_attns:
+            return x, enc_slf_attn_list
+        else: return x
+
+    

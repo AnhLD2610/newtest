@@ -88,45 +88,25 @@ def idx_to_word(x, tokenizer):
 
 
 
+# def summarize_batch(self, src: Batch):
+#         """ Computes the full summarization prediction, given
+#         a batch of source sequences """
 
-# def idx_to_word(x, tokenizer):
-#     x = x.tolist()
-#     words = tokenizer.decode(x)
-    
-#     # print(x.device)
-#     # print(x.shape)
-#     # print(x)
-#     # prediction_ids = unix_coder.generate(x)
-#     # predictions = unix_coder.decode(prediction_ids)
-#     # return predictions[0][0]
+#         self.src = src
+#         src_seq, src_pos = src.get_seq_and_pos()
+#         extra_info = None
 
-#     # for i in x:
-#     #     # print(i)
-#     #     # print(type(i))
-#     #     word = tokenizer.convert_ids_to_tokens(i)
-#     #     # print('gggggg')
-#     #     # print(word)
-#     #     if '<' not in word:
-#     #         if 'Ġ' not in word:
-#     #             words.append(word)
-#     #         else:
-#     #             words.append(word[1:])
-#     # words = " ".join(words)
-    
-#     # words = words.replace('<s><encoder-only></s>','')
-#     # words = words.replace('</s>','')
-#     # print(words)
-#     words = words.replace('<s><encoder-only></s>','')
-#     search_string = "</s>"  
-#     start_index = words.find(search_string)  
+#         with torch.no_grad():
+#             # Encode
+#             src_seq, src_pos = src_seq.to(self.device), src_pos.to(self.device)
+#             src_enc, *_ = self.transformer.encoder(src_seq, src_pos)
 
-#     if start_index != -1:  
-#         words = words[:start_index]  
-#     else:
-#         print(words)  
-#     words = words.strip()
-#     print(words)
-#     return words
+#             hyps, scores, extra_info = self.beam_searcher.search_batch(src, src_enc, self.max_token_seq_len)
+            
+#         # thay cai nay bang cai decode cua minh
+#         hyps = self.batch_ids_to_words(src, hyps)
+#         # thay cai nay bang cai decode cua minh
+#         return hyps, scores, extra_info
 
 
 

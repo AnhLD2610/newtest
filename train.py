@@ -11,7 +11,7 @@ from util.epoch_timer import epoch_time
 from unixcoder1 import UniXcoder
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                               RobertaConfig, RobertaModel, RobertaTokenizer)
-
+import os
 # model_path = "microsoft/unixcoder-base-nine"
 # tokenizer = RobertaTokenizer.from_pretrained(model_path)
 # config = RobertaConfig.from_pretrained(model_path)
@@ -78,7 +78,7 @@ def train(model, iterator, optimizer, criterion, clip):
         # print(trg)
         optimizer.zero_grad()
         # xem format cua trg 
-        output, attn_dist = model(src, trg)
+        output, enc_output, enc_dec_attns = model(src, trg, return_attns = True)
         output_reshape = output.contiguous().view(-1, output.shape[-1])
         trg = trg.contiguous().view(-1)
 
@@ -133,7 +133,7 @@ def evaluate(model, iterator, criterion):
             # print(trg)
             optimizer.zero_grad()
             # xem format cua trg 
-            output, attn_dist = model(src, trg)
+            output, enc_output, enc_dec_attns = model(src, trg, return_attns = True)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
             trg_new = trg.contiguous().view(-1)
             # print(trg.shape)
@@ -202,10 +202,15 @@ def run(total_epoch, best_loss):
         bleus.append(bleu)
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
+        if not os.path.exists('result'):
+            os.makedirs('result')
+        if not os.path.exists('saved'):
+            os.makedirs('saved')
+
         if valid_loss < best_loss:
             best_loss = valid_loss
             torch.save(model.state_dict(), 'saved/model-{0}.pt'.format(valid_loss))
-
+        
         f = open('result/train_loss.txt', 'w')
         f.write(str(train_losses))
         f.close()
@@ -240,7 +245,7 @@ def generate(model, iterator):
             # print(trg)
             optimizer.zero_grad()
             # xem format cua trg 
-            output, attention = model(src, trg)
+            output, enc_output, enc_dec_attns = model(src, trg, return_attns = True)
             # print(output.device)
             # output_reshape = output.contiguous().view(-1, output.shape[-1])
             # trg_new = trg.contiguous().view(-1)
@@ -262,7 +267,7 @@ def generate(model, iterator):
                 # print('333')
                 # output_words = idx_to_word(output_words, tokenizer)
                 output_words = idx_to_word(output_words, tokenizer)
-
+                
                 # print('444')
                 with open('result/hypotheses.txt','a', encoding='utf-8') as f1, open('result/reference.txt','a', encoding='utf-8') as f2:
                     f1.write(output_words+'\n')

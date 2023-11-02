@@ -35,7 +35,7 @@ class DecoderLayer(nn.Module):
         if enc is not None:
             # 3. compute encoder - decoder attention
             _x = x
-            x, attention = self.enc_dec_attention(q=x, k=enc, v=enc, mask=src_mask)
+            x, dec_enc_attn = self.enc_dec_attention(q=x, k=enc, v=enc, mask=src_mask)
             # print("Shape of x after enc_dec_attention:", x.shape)
 
             # 4. add and norm
@@ -51,7 +51,7 @@ class DecoderLayer(nn.Module):
         x = self.norm3(x + _x)
         # x shape [batch_size, length , d_model]
 
-        return x, attention 
+        return x, selfAttention, dec_enc_attn 
 
 
 

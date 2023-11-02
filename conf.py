@@ -1,7 +1,7 @@
 import torch
 
 # GPU device setting
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 # print(device)
 batch_size = 4
 max_len = 768
@@ -27,7 +27,7 @@ weight_decay = 5e-4
 inf = float('inf')
 
 # train, val, path 
-train_path ="/kaggle/input/c-dataset/train.csv"
-val_path ="/kaggle/input/c-dataset/valid.csv"
-test_path = "/kaggle/input/c-dataset/test.csv"
+train_path ="/home/aiotlab3/RISE/Lab-MA/DucAnh/newtest/data/C#/train.csv"
+val_path ="/home/aiotlab3/RISE/Lab-MA/DucAnh/newtest/data/C#/valid.csv"
+test_path = "/home/aiotlab3/RISE/Lab-MA/DucAnh/newtest/data/C#/test.csv"
 
