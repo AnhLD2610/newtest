@@ -40,4 +40,4 @@ class Decoder(nn.Module):
         # trn shape [batch_size, seq_len, dec_voc_size]
         if return_attns:
             return output, dec_slf_attn_list, dec_enc_attn_list
-        else: return output,
+        else: return output

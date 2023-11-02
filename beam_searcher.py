@@ -13,13 +13,12 @@ https://github.com/jadore801120/attention-is-all-you-need-pytorch/blob/master/tr
 
 import torch
 
-from data.batch import Batch # XEM XET CAI NAY
 from Beam import Beam
 
 
 class BeamSearcher:
 
-    def __init__(self, model, beam_size, num_best=1, ngram_block_size=None, device=False):
+    def __init__(self, model, beam_size, device=False, num_best=1, ngram_block_size=None):
         self.model = model
         self.beam_size = beam_size
         self.device = device
@@ -72,8 +71,8 @@ class BeamSearcher:
         dec_pos = self.prepare_beam_dec_pos(len_dec_seq, n_active_inst)
         
         active_idxs = torch.LongTensor([i for i, b in enumerate(inst_dec_beams) if not b.done]).to(self.device)
-
-        p_vocab, extra_info = self.model.decode_one_step(dec_seq, dec_pos, src, src_seq, enc_output, active_idxs)
+        # phan nay 
+        p_vocab, extra_info = self.model.decode_one_step(dec_seq, enc_output, , ,)
         p_vocab = p_vocab.view(n_active_inst, self.beam_size, -1)
 
         # Update the beam with predicted word prob information and collect incomplete instances

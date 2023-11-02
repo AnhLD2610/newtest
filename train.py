@@ -8,17 +8,11 @@ from data import *
 from models.model.transformer import Transformer
 from util.bleu import idx_to_word, get_bleu
 from util.epoch_timer import epoch_time
-from unixcoder1 import UniXcoder
+# from beam_searcher import BeamSearcher
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                               RobertaConfig, RobertaModel, RobertaTokenizer)
 import os
-# model_path = "microsoft/unixcoder-base-nine"
-# tokenizer = RobertaTokenizer.from_pretrained(model_path)
-# config = RobertaConfig.from_pretrained(model_path)
-# emb_model = RobertaModel.from_pretrained(model_path) 
-# emb_model.to(device)
 
-# unix_coder = UniXcoder(emb_model, config, tokenizer)
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -59,50 +53,45 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
 
 criterion = nn.CrossEntropyLoss(ignore_index=src_pad_idx)
 
+# beam_search = BeamSearcher(model, beam_size = 3, device=device, num_best=1, ngram_block_size=None)
 
 def train(model, iterator, optimizer, criterion, clip):
     model.train()
     epoch_loss = 0
     for i, batch in enumerate(iterator):
-        # print(batch)
-        # print(type(batch))
+       
         src = batch[0].to(device)
         trg = batch[1].to(device)
-        # print(src.shape)
-        # print(trg.shape)
-        # print(src[0])
-        # print(trg[1])
-    
-        # batch.src va batch.trg la câu dạng mà mỗi từ là vị trí trong từ điển 
-        # print(src)
-        # print(trg)
+       
         optimizer.zero_grad()
-        # xem format cua trg 
-        output, enc_output, enc_dec_attns = model(src, trg, return_attns = True)
+        
+        # output, enc_output, enc_dec_attns = model(src, trg[:, :-1], return_attns = True)
+        output = model(src, trg[:, :-1], return_attns = False)
+
         output_reshape = output.contiguous().view(-1, output.shape[-1])
-        trg = trg.contiguous().view(-1)
+        trg = trg[:,1:].contiguous().view(-1)
 
         loss = criterion(output_reshape, trg)
         
-        # COVERAGE 
-        # attention shape [batch_size,n_head,trg_len,src_len] sau khi sum thi sum tat ca cac head_ lai
-        attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
-        target_len = attn_dist.shape[1]
-        src_len = attn_dist.shape[2]
+        # # COVERAGE 
+        # # attention shape [batch_size,n_head,trg_len,src_len] sau khi sum thi sum tat ca cac head_ lai
+        # attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
+        # target_len = attn_dist.shape[1]
+        # src_len = attn_dist.shape[2]
         
-        attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
+        # attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
 
 
-        attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
-        coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
-        # attn_vecs = attn_dist_reshaped[:, 1:, :]
-        # de 3 token dac biet o dau
-        attn_vecs = attn_dist_reshaped[:, :, :]
+        # attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
+        # coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
+        # # attn_vecs = attn_dist_reshaped[:, 1:, :]
+        # # de 3 token dac biet o dau
+        # attn_vecs = attn_dist_reshaped[:, :, :]
 
-        min_vecs = torch.min(coverage_vecs, attn_vecs)
-        coverage_loss = torch.sum(min_vecs).item()
+        # min_vecs = torch.min(coverage_vecs, attn_vecs)
+        # coverage_loss = torch.sum(min_vecs).item()
             
-        loss += 0.001*coverage_loss
+        # loss += 0.001*coverage_loss
         
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
@@ -123,6 +112,14 @@ def evaluate(model, iterator, criterion):
             src = batch[0].to(device)
             trg = batch[1].to(device)
             
+            seq_gen = torch.ones(trg.size(0), (target_len-1), dtype=torch.int)
+            seq_gen[:, 0] = 0
+            seq_gen[:, 1:] = 1
+
+            # print('111111')
+            # print(trg)
+            # print(trg.shape)
+            # print('5555555')
             # print(src.shape)
             # print(trg.shape)
             # print(src[0])
@@ -133,32 +130,35 @@ def evaluate(model, iterator, criterion):
             # print(trg)
             optimizer.zero_grad()
             # xem format cua trg 
-            output, enc_output, enc_dec_attns = model(src, trg, return_attns = True)
+            output = model(src, trg[:, :-1], return_attns = False)
             output_reshape = output.contiguous().view(-1, output.shape[-1])
-            trg_new = trg.contiguous().view(-1)
+            trg_new = trg[:, 1:].contiguous().view(-1)
             # print(trg.shape)
+            print(output_reshape.shape)
+            print(trg_new.shape)
             loss = criterion(output_reshape, trg_new)
             
-            # COVERAGE 
-            # attention shape [batch_size,n_head,trg_len,src_len] sau khi sum thi sum tat ca cac head_ lai
-            attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
-            target_len = attn_dist.shape[1]
-            src_len = attn_dist.shape[2]
+            # # COVERAGE 
+            # # attention shape [batch_size,n_head,trg_len,src_len] sau khi sum thi sum tat ca cac head_ lai
+            # attn_dist = torch.sum(attn_dist, dim=1) # [batch_size,trg_len,src_len]
+            # target_len = attn_dist.shape[1]
+            # src_len = attn_dist.shape[2]
             
-            attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
+            # attn_dist = torch.nn.functional.softmax(attn_dist, dim=2)
 
 
-            attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
-            coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
-            # attn_vecs = attn_dist_reshaped[:, 1:, :]
-            # de 3 token dac biet o dau
-            attn_vecs = attn_dist_reshaped[:, :, :]
+            # attn_dist_reshaped = attn_dist.contiguous().view(-1, target_len, src_len)
+            # coverage_vecs = torch.cumsum(attn_dist_reshaped[:, :target_len , :], 1)
+            # # attn_vecs = attn_dist_reshaped[:, 1:, :]
+            # # de 3 token dac biet o dau
+            # attn_vecs = attn_dist_reshaped[:, :, :]
 
-            min_vecs = torch.min(coverage_vecs, attn_vecs)
-            coverage_loss = torch.sum(min_vecs).item()
-            
-            
-            epoch_loss += (loss.item()+coverage_loss)
+            # min_vecs = torch.min(coverage_vecs, attn_vecs)
+            # coverage_loss = torch.sum(min_vecs).item()
+            # epoch_loss += (loss.item()+coverage_loss)
+
+            epoch_loss += loss.item()
+
 
             total_bleu = []
             for j in range(batch_size):
@@ -268,6 +268,8 @@ def generate(model, iterator):
                 # output_words = idx_to_word(output_words, tokenizer)
                 output_words = idx_to_word(output_words, tokenizer)
                 
+                # batch_hyp, batch_scores, final_extra = beam_search.search_batch(src[j], enc_output, 50)
+                
                 # print('444')
                 with open('result/hypotheses.txt','a', encoding='utf-8') as f1, open('result/reference.txt','a', encoding='utf-8') as f2:
                     f1.write(output_words+'\n')
@@ -295,11 +297,9 @@ if __name__ == '__main__':
 
     # model.eval()
     # generate(model,test_iter)
-    # /home/aiotlab3/RISE/Lab-MA/DucAnh/transformer/saved/model-2.561770428555452.pt
     
     
-    # checkpoint = torch.load("/home/aiotlab3/RISE/Lab-MA/DucAnh/transformer_copy/saved/model-1.3572942430148027.pt", map_location=device)
-    # # model-1.6922560892358423.pt
+    # checkpoint = torch.load("/media/data/thanhnb/newtest/saved/model-10.736227671305338.pt", map_location=device)
     # model.load_state_dict(checkpoint)
 
     # model.eval()

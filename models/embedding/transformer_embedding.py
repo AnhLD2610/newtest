@@ -28,26 +28,9 @@ class TransformerEmbedding(nn.Module):
 
     # x la text
     def forward(self, x):
-        # print('5555555555555')
-        # # tok_emb shape [batch_size, seq_len, d_model]
-        # # print(x)
-        # tok_emb = self.tok_emb.embedding(x)
-        # print('55555555555556')
-        # seq_len = tok_emb.shape[1]
-        # print('55555555555557')
-
-        # # pos_emb shape [seq_len, d_model]
-        # pos_emb = self.pos_emb(seq_len)
-        # print('55555555555585')
-        # # tok_emb + pos_emb shape = [batch_size, seq_len, d_model]
-        # return self.drop_out(tok_emb + pos_emb)
+        
     
         tok_emb = self.tok_emb.embedding(x)
         pos_emb = self.pos_emb(x)
-        # print('ttttttt')
-        # print(x.shape)
-        # tok_emb shape [batch_size, seq_len, d_model]
-        # pos_emb shape [seq_len, d_model]
-        # print(tok_emb.shape)
-        # print(pos_emb.shape)
+        
         return self.drop_out(tok_emb + pos_emb)

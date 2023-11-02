@@ -1,10 +1,12 @@
 import torch
 
 # GPU device setting
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-# print(device)
-batch_size = 4
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# batch_size = 4
+batch_size = 8
+
 max_len = 768
+target_len = 128
 # max_len = 1023
 # d_model = 512
 d_model = 768
@@ -20,14 +22,14 @@ adam_eps = 5e-9
 
 patience = 10
 warmup = 100
-# epoch = 1000
-epoch = 6
+epoch = 10
+# epoch = 6
 clip = 1.0
 weight_decay = 5e-4
 inf = float('inf')
 
 # train, val, path 
-train_path ="/home/aiotlab3/RISE/Lab-MA/DucAnh/newtest/data/C#/train.csv"
-val_path ="/home/aiotlab3/RISE/Lab-MA/DucAnh/newtest/data/C#/valid.csv"
-test_path = "/home/aiotlab3/RISE/Lab-MA/DucAnh/newtest/data/C#/test.csv"
+train_path ="/media/data/thanhnb/newtest/data/C#/train.csv"
+val_path ="/media/data/thanhnb/newtest/data/C#/valid.csv"
+test_path = "/media/data/thanhnb/newtest/data/C#/test.csv"
 

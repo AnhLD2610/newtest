@@ -59,34 +59,3 @@ class PositionalEncoding(nn.Module):
         # [seq_len = 30, d_model = 512]
         # it will add with tok_emb : [128, 30, 512]
 
-# d_model = 512
-# max_len = 100
-# device = 'cuda' if torch.cuda.is_available() else 'cpu'  # Use GPU if available, otherwise CPU
-# positional_encoding = PositionalEncoding(d_model, max_len, device)
-
-# # Create a sample input tensor (you can change the dimensions as needed)
-# batch_size = 2
-# seq_len = 30
-# input_tensor = torch.randn(batch_size, seq_len)
-
-# # Apply positional encoding
-# output = positional_encoding(input_tensor)
-
-# # Check the shape of the output
-# print("Input shape:", input_tensor.shape)
-# print("Output shape (positional encodings added):", output.shape)
-
-
-# d_model = 4
-# max_len = 100
-
-# # Create a sample input tensor (you can change the dimensions as needed)
-# batch_size = 2
-# seq_len = 3
-# input_tensor = torch.randn(batch_size, seq_len, d_model)
-# input_tensor1 = torch.randn(seq_len, d_model)
-# print(input_tensor+input_tensor1)
-# input = input_tensor+input_tensor1
-# print(input.shape)
-# print(input_tensor)
-# print(input_tensor1)

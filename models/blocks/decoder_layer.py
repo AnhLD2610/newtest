@@ -56,30 +56,6 @@ class DecoderLayer(nn.Module):
 
 
 
-# import torch
-
-
-# d_model = 512
-# ffn_hidden = 2048
-# n_head = 8
-# drop_prob = 0.1
-# batch_size = 32
-# seq_length = 10
-
-# # Create a DecoderLayer instance
-# decoder_layer = DecoderLayer(d_model, ffn_hidden, n_head, drop_prob)
-
-# # Generate some example input tensors (you would typically have your own data)
-# dec = torch.randn(batch_size, seq_length, d_model)
-# enc = torch.randn(batch_size, seq_length, d_model)
-# trg_mask = None  # You can define the mask as needed
-# src_mask = None  # You can define the mask as needed
-
-# # Call the forward method
-# x = decoder_layer(dec, enc, trg_mask, src_mask)
-
-# # Print the shape of x after the enc_dec_attention operation
-# print("Shape of x after enc_dec_attention:", x.shape)
 
 
 

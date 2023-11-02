@@ -2,7 +2,7 @@ import math
 from collections import Counter
 
 import numpy as np
-
+# from beam_searcher import BeamSearcher
 
 def bleu_stats(hypothesis, reference):
     """Compute statistics for BLEU."""
@@ -85,7 +85,8 @@ def idx_to_word(x, tokenizer):
     # print(words)
     return words
 
-
+def BeamSearch(model, beam_size, device, num_best=1, ngram_block_size=None):
+    return 1,2,3
 
 
 # def summarize_batch(self, src: Batch):
